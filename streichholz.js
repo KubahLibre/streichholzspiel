@@ -7,9 +7,14 @@ const rl = readline.createInterface({
 
 let sticks = 21;
 let turn = 1;
+let ended = false;
+
+function drawSticks(n) {
+  return '|'.repeat(n);
+}
 
 function ask() {
-  console.log(`\nVerbleibende Hölzchen: ${sticks}`);
+  console.log(`\nVerbleibende Hölzchen: ${sticks}  ${drawSticks(sticks)}`);
   rl.question(`Spieler ${turn}, wie viele ziehst du? (1-3): `, (input) => {
     const n = parseInt(String(input).trim(), 10);
 
@@ -22,6 +27,7 @@ function ask() {
     console.log(`Spieler ${turn} zieht ${n}.`);
 
     if (sticks === 0) {
+      ended = true;
       console.log(`\nSpieler ${turn} hat das letzte Hölzchen genommen und verliert!`);
       console.log(`Spieler ${turn === 1 ? 2 : 1} gewinnt.`);
       rl.close();
@@ -32,6 +38,12 @@ function ask() {
     ask();
   });
 }
+
+rl.on('close', () => {
+  if (!ended) {
+    console.log('\nSpiel abgebrochen.');
+  }
+});
 
 console.log('=== Streichholzspiel ===');
 console.log('Start: 21 Hölzchen. Jeder Zug: 1-3 Hölzchen. Wer das letzte nimmt, verliert.');
