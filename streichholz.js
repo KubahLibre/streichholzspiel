@@ -11,7 +11,12 @@ let turn = 1;
 function ask() {
   console.log(`\nVerbleibende Hölzchen: ${sticks}`);
   rl.question(`Spieler ${turn}, wie viele ziehst du? (1-3): `, (input) => {
-    const n = parseInt(input, 10);
+    const n = parseInt(String(input).trim(), 10);
+
+    if (isNaN(n) || n < 1 || n > 3 || n > sticks) {
+      console.log('Ungültige Eingabe. Bitte eine Zahl von 1 bis 3 eingeben (nicht mehr als verbleiben).');
+      return ask();
+    }
 
     sticks -= n;
     console.log(`Spieler ${turn} zieht ${n}.`);
