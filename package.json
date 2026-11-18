@@ -1,0 +1,7 @@
+{
+  "name": "azubi-streichholzspiel",
+  "private": true,
+  "scripts": {
+    "start": "node streichholz.js"
+  }
+}
