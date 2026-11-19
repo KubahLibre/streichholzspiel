@@ -1,3 +1,7 @@
+// streichholz.js
+// Streichholzspiel: zwei Spieler ziehen abwechselnd 1-3 Hölzchen.
+// Start: 21 Hölzchen. Wer das letzte nimmt, verliert.
+
 const readline = require('readline');
 
 const rl = readline.createInterface({
@@ -6,14 +10,19 @@ const rl = readline.createInterface({
 });
 
 let sticks = 21;
-let turn = 1;
+let turn = 1; // Spieler 1 oder 2
 let ended = false;
+let mode = 'human'; // 'human' or 'computer'
 
 function drawSticks(n) {
   return '|'.repeat(n);
 }
 
 function ask() {
+  if (mode === 'computer' && turn === 2) {
+    return computerTurn();
+  }
+
   console.log(`\nVerbleibende Hölzchen: ${sticks}  ${drawSticks(sticks)}`);
   rl.question(`Spieler ${turn}, wie viele ziehst du? (1-3): `, (input) => {
     const n = parseInt(String(input).trim(), 10);
@@ -39,12 +48,43 @@ function ask() {
   });
 }
 
+function computerTurn() {
+  console.log(`\nVerbleibende Hölzchen: ${sticks}  ${drawSticks(sticks)}`);
+  const n = 1;
+  sticks -= n;
+  console.log(`Computer zieht ${n}.`);
+
+  if (sticks === 0) {
+    ended = true;
+    console.log(`\nComputer hat das letzte Hölzchen genommen und verliert!`);
+    console.log('Du gewinnst.');
+    rl.close();
+    return;
+  }
+
+  turn = 1;
+  ask();
+}
+
 rl.on('close', () => {
   if (!ended) {
     console.log('\nSpiel abgebrochen.');
   }
 });
 
+function selectMode() {
+  rl.question('Modus: (1) gegen Menschen  (2) gegen Computer: ', (input) => {
+    const m = parseInt(String(input).trim(), 10);
+    if (m !== 1 && m !== 2) {
+      console.log('Ungültige Eingabe. Bitte 1 oder 2 eingeben.');
+      return selectMode();
+    }
+    mode = m === 2 ? 'computer' : 'human';
+    console.log(mode === 'computer' ? 'Modus: gegen Computer. Du bist Spieler 1.' : 'Modus: zwei Spieler.');
+    ask();
+  });
+}
+
 console.log('=== Streichholzspiel ===');
 console.log('Start: 21 Hölzchen. Jeder Zug: 1-3 Hölzchen. Wer das letzte nimmt, verliert.');
-ask();
+selectMode();
