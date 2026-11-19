@@ -8,8 +8,12 @@ const rl = readline.createInterface({
 let sticks = 21;
 let turn = 1;
 
+function drawSticks(n) {
+  return '|'.repeat(n);
+}
+
 function ask() {
-  console.log(`\nVerbleibende Hölzchen: ${sticks}`);
+  console.log(`\nVerbleibende Hölzchen: ${sticks}  ${drawSticks(sticks)}`);
   rl.question(`Spieler ${turn}, wie viele ziehst du? (1-3): `, (input) => {
     const n = parseInt(String(input).trim(), 10);
 
