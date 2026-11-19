@@ -9,6 +9,7 @@ let sticks = 21;
 let turn = 1;
 let ended = false;
 let mode = 'human';
+let difficulty = 1;
 
 function drawSticks(n) {
   return '|'.repeat(n);
@@ -44,11 +45,28 @@ function ask() {
   });
 }
 
+function optimalMove(sticks) {
+  const cap = Math.min(3, sticks);
+  for (let n = 1; n <= cap; n++) {
+    if ((sticks - n) % 4 === 1) return n;
+  }
+  return null;
+}
+
 function computerTurn() {
   console.log(`\nVerbleibende Hölzchen: ${sticks}  ${drawSticks(sticks)}`);
   const cap = Math.min(3, sticks);
-  const minD = Math.min(1, sticks);
-  const n = minD + Math.floor(Math.random() * (cap - minD + 1));
+  const minD = 1;
+  let n;
+  const optimal = optimalMove(sticks);
+  const prob = difficulty === 3 ? 1 : difficulty === 2 ? 0.5 : 0;
+  if (optimal !== null && Math.random() < prob) {
+    n = optimal;
+  } else {
+    n = minD + Math.floor(Math.random() * (cap - minD + 1));
+  }
+  if (n < minD) n = minD;
+  if (n > cap) n = cap;
   sticks -= n;
   console.log(`Computer zieht ${n}.`);
 
@@ -78,8 +96,21 @@ function selectMode() {
       return selectMode();
     }
     mode = m === 2 ? 'computer' : 'human';
-    console.log(mode === 'computer' ? 'Modus: gegen Computer. Du bist Spieler 1.' : 'Modus: zwei Spieler.');
-    ask();
+    if (mode === 'computer') {
+      rl.question('Schwierigkeit: (1) leicht  (2) mittel  (3) schwer: ', (input) => {
+        const d = parseInt(String(input).trim(), 10);
+        if (d !== 1 && d !== 2 && d !== 3) {
+          console.log('Ungültige Eingabe. Bitte 1, 2 oder 3 eingeben.');
+          return selectMode();
+        }
+        difficulty = d;
+        console.log('Modus: gegen Computer. Du bist Spieler 1.');
+        ask();
+      });
+    } else {
+      console.log('Modus: zwei Spieler.');
+      ask();
+    }
   });
 }
 
