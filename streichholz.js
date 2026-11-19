@@ -6,6 +6,8 @@ const rl = readline.createInterface({
 });
 
 let sticks = 21;
+let minDraw = 1;
+let maxDraw = 3;
 let turn = 1;
 let ended = false;
 let mode = 'human';
@@ -25,54 +27,53 @@ function askInt(question, validate, errorMsg, cb) {
   });
 }
 
-function ask() {
-  if (mode === 'computer' && turn === 2) {
-    return computerTurn();
+function finishMove(mover) {
+  if (sticks === 0) {
+    ended = true;
+    console.log(`\nSpieler ${mover} hat das letzte Hölzchen genommen und verliert!`);
+    console.log(`Spieler ${mover === 1 ? 2 : 1} gewinnt.`);
+    rl.close();
+    return true;
   }
-
-  console.log(`\nVerbleibende Hölzchen: ${sticks}  ${drawSticks(sticks)}`);
-  rl.question(`Spieler ${turn}, wie viele ziehst du? (1-3): `, (input) => {
-    const n = parseInt(String(input).trim(), 10);
-
-    if (isNaN(n) || n < 1 || n > 3 || n > sticks) {
-      console.log('Ungültige Eingabe. Bitte eine Zahl von 1 bis 3 eingeben (nicht mehr als verbleiben).');
-      return ask();
-    }
-
-    sticks -= n;
-    console.log(`Spieler ${turn} zieht ${n}.`);
-
-    if (sticks === 0) {
-      ended = true;
-      console.log(`\nSpieler ${turn} hat das letzte Hölzchen genommen und verliert!`);
-      console.log(`Spieler ${turn === 1 ? 2 : 1} gewinnt.`);
-      rl.close();
-      return;
-    }
-
-    turn = turn === 1 ? 2 : 1;
-    ask();
-  });
+  if (sticks < minDraw) {
+    ended = true;
+    console.log(`\nSpieler ${mover === 1 ? 2 : 1} kann nicht ziehen (min. ${minDraw}) und verliert!`);
+    console.log(`Spieler ${mover} gewinnt.`);
+    rl.close();
+    return true;
+  }
+  return false;
 }
 
 function computerTurn() {
   console.log(`\nVerbleibende Hölzchen: ${sticks}  ${drawSticks(sticks)}`);
-  const cap = Math.min(3, sticks);
-  const minD = 1;
+  const cap = Math.min(maxDraw, sticks);
+  const minD = Math.min(minDraw, sticks);
   const n = minD + Math.floor(Math.random() * (cap - minD + 1));
   sticks -= n;
   console.log(`Computer zieht ${n}.`);
-
-  if (sticks === 0) {
-    ended = true;
-    console.log(`\nComputer hat das letzte Hölzchen genommen und verliert!`);
-    console.log('Du gewinnst.');
-    rl.close();
-    return;
-  }
-
+  if (finishMove(2)) return;
   turn = 1;
   ask();
+}
+
+function ask() {
+  if (mode === 'computer' && turn === 2) {
+    return computerTurn();
+  }
+  console.log(`\nVerbleibende Hölzchen: ${sticks}  ${drawSticks(sticks)}`);
+  rl.question(`Spieler ${turn}, wie viele ziehst du? (${minDraw}-${maxDraw}): `, (input) => {
+    const n = parseInt(String(input).trim(), 10);
+    if (isNaN(n) || n < minDraw || n > maxDraw || n > sticks) {
+      console.log(`Ungültige Eingabe. Bitte ${minDraw} bis ${maxDraw} eingeben (nicht mehr als verbleiben).`);
+      return ask();
+    }
+    sticks -= n;
+    console.log(`Spieler ${turn} zieht ${n}.`);
+    if (finishMove(turn)) return;
+    turn = turn === 1 ? 2 : 1;
+    ask();
+  });
 }
 
 rl.on('close', () => {
@@ -98,7 +99,13 @@ function start() {
   console.log('=== Streichholzspiel ===');
   askInt('Start-Streichhölzer (z. B. 21): ', (n) => n >= 1, 'Bitte eine Zahl >= 1 eingeben.', (s) => {
     sticks = s;
-    selectMode();
+    askInt('Min. pro Zug (z. B. 1): ', (n) => n >= 1 && n <= sticks, 'Bitte 1 bis ' + sticks + ' eingeben.', (mn) => {
+      minDraw = mn;
+      askInt('Max. pro Zug (z. B. 3): ', (n) => n >= minDraw, 'Bitte >= ' + minDraw + ' eingeben.', (mx) => {
+        maxDraw = mx;
+        selectMode();
+      });
+    });
   });
 }
 
