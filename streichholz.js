@@ -1,4 +1,3 @@
-
 const readline = require('readline');
 
 const rl = readline.createInterface({
@@ -13,6 +12,17 @@ let mode = 'human';
 
 function drawSticks(n) {
   return '|'.repeat(n);
+}
+
+function askInt(question, validate, errorMsg, cb) {
+  rl.question(question, (input) => {
+    const n = parseInt(String(input).trim(), 10);
+    if (isNaN(n) || !validate(n)) {
+      console.log(errorMsg);
+      return askInt(question, validate, errorMsg, cb);
+    }
+    cb(n);
+  });
 }
 
 function ask() {
@@ -48,7 +58,7 @@ function ask() {
 function computerTurn() {
   console.log(`\nVerbleibende Hölzchen: ${sticks}  ${drawSticks(sticks)}`);
   const cap = Math.min(3, sticks);
-  const minD = Math.min(1, sticks);
+  const minD = 1;
   const n = minD + Math.floor(Math.random() * (cap - minD + 1));
   sticks -= n;
   console.log(`Computer zieht ${n}.`);
@@ -84,6 +94,12 @@ function selectMode() {
   });
 }
 
-console.log('=== Streichholzspiel ===');
-console.log('Start: 21 Hölzchen. Jeder Zug: 1-3 Hölzchen. Wer das letzte nimmt, verliert.');
-selectMode();
+function start() {
+  console.log('=== Streichholzspiel ===');
+  askInt('Start-Streichhölzer (z. B. 21): ', (n) => n >= 1, 'Bitte eine Zahl >= 1 eingeben.', (s) => {
+    sticks = s;
+    selectMode();
+  });
+}
+
+start();
