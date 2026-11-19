@@ -1,7 +1,3 @@
-// streichholz.js
-// Streichholzspiel: zwei Spieler ziehen abwechselnd 1-3 Hölzchen.
-// Start: 21 Hölzchen. Wer das letzte nimmt, verliert.
-
 const readline = require('readline');
 
 const rl = readline.createInterface({
@@ -10,9 +6,9 @@ const rl = readline.createInterface({
 });
 
 let sticks = 21;
-let turn = 1; // Spieler 1 oder 2
+let turn = 1;
 let ended = false;
-let mode = 'human'; // 'human' or 'computer'
+let mode = 'human';
 
 function drawSticks(n) {
   return '|'.repeat(n);
@@ -50,7 +46,9 @@ function ask() {
 
 function computerTurn() {
   console.log(`\nVerbleibende Hölzchen: ${sticks}  ${drawSticks(sticks)}`);
-  const n = 1;
+  const cap = Math.min(3, sticks);
+  const minD = Math.min(1, sticks);
+  const n = minD + Math.floor(Math.random() * (cap - minD + 1));
   sticks -= n;
   console.log(`Computer zieht ${n}.`);
 
