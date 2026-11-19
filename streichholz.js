@@ -12,7 +12,7 @@ const rl = readline.createInterface({
 let sticks = 21;
 let turn = 1; // Spieler 1 oder 2
 let ended = false;
-let mode = 'human'; // 'human' or 'computer'
+let mode = 'human'; // human or computer
 
 function drawSticks(n) {
   return '|'.repeat(n);
@@ -50,7 +50,9 @@ function ask() {
 
 function computerTurn() {
   console.log(`\nVerbleibende Hölzchen: ${sticks}  ${drawSticks(sticks)}`);
-  const n = 1;
+  const cap = Math.min(3, sticks);
+  const minD = Math.min(1, sticks);
+  const n = minD + Math.floor(Math.random() * (cap - minD + 1));
   sticks -= n;
   console.log(`Computer zieht ${n}.`);
 
